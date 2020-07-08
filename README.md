@@ -210,6 +210,7 @@ Uniswap V2 $ETH/$ARTE (1,100 $ARTE Every Week) 0.01% Weekly Inflation
 Uniswap V2 $BUIDL/$ARTE (1,100 $ARTE Every Week) 0.01% Weekly Inflation
 For a total of 2,200 $ARTE every week (0.02%)
 ### Ethart Fair Inflation V2:
+From the DFOhub Team Operations Wallet (https://etherscan.io/tokenHoldings?a=0x25756f9C2cCeaCd787260b001F224159aB9fB97A) 
 Inflation events will occur once a day (every 6,300 ETH Blocks) across two Uniswap pairs for a total of 314 $ARTE each time:
 Uniswap V2 $ETH/$ARTE (157 $ARTE Every Day)
 Uniswap V2 $BUIDL/$ARTE (157 $ARTE Every Day)
