@@ -2,6 +2,8 @@
 
 AleToschi.eth | Vasapower.eth | CD
 
+White Paper: https://docs.google.com/document/d/1-foU-XTlXS0WgH97IOVC1i-O_WsKeqc-FVL5x9RR7WY/edit?usp=sharing
+
 ## Document Purpose:
 
 This document is an update of “A sustainable economic model for DFO-based Startups to maintain value and funds operations” https://drive.google.com/file/d/1_QZr5CjNsQKGxoJ5WkI9iPJGs4PdKWol/ We successfully renamed this mechanism “Fair Inflation V1” (FI V1). During the experimentation of the Fair Inflation V1, the DFOhub Team Researched and Developed a better and more resilient version of the “Fair Inflation V1” called “Fair Inflation V2” (FI V2).
