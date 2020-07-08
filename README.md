@@ -144,29 +144,37 @@ DFOhub (https://etherscan.io/tokenHoldings?a=0x5D40c724ba3e7Ffa6a91db223368977C5
 
 This Smart Contract will inflate the circulation supply of a total of 336.000 BUIDL in a year and a half. The funds will be both inflated into 3 different Uniswap Pools and lock them to reward liquidity pool providers :
 
-30% Uniswap V2 ETH/BUIDL (100.800 BUIDL)
-30% Uniswap V2 USDC/BUIDL (100.800 BUIDL)
-10% Uniswap V2 ARTE/BUIDL (33.600 BUIDL)
-30% Rewards for Liquidity Providers  (100.800 BUIDL)
+- 30% Uniswap V2 ETH/BUIDL (100.800 BUIDL)
+
+- 30% Uniswap V2 USDC/BUIDL (100.800 BUIDL)
+
+- 10% Uniswap V2 ARTE/BUIDL (33.600 BUIDL)
+
+- 30% Rewards for Liquidity Providers  (100.800 BUIDL)
 
 During every Selling Event, the Circulating supply of BUIDL will increase by 600 BUIDL and will be split into:
 
-30% Uniswap V2 ETH/BUIDL (180 BUIDL)
-30% Uniswap V2 USDC/BUIDL (180 BUIDL)
-10% Uniswap V2 ARTE/BUIDL (60 BUIDL)
-30% Rewards for Liquidity Providers  (180 BUIDL)
+- 30% Uniswap V2 ETH/BUIDL (180 BUIDL)
+
+- 30% Uniswap V2 USDC/BUIDL (180 BUIDL)
+
+- 10% Uniswap V2 ARTE/BUIDL (60 BUIDL)
+
+- 30% Rewards for Liquidity Providers  (180 BUIDL)
 
 At the same time, the DFOhub Team Operations Wallet (https://etherscan.io/tokenHoldings?a=0x25756f9C2cCeaCd787260b001F224159aB9fB97A) will step by step inflate the circulating supply of BUIDL for a total of 336.000 BUIDL during a period of a year and a half splitted in 560 daily Inflation Events (6.300 Ethereum Blocks)
 
 This Smart Contract will inflate the circulation supply of a total of 336.000 BUIDL in a year and a half. The funds will be both inflated into 3 different Uniswap Pools:
 
-50% Uniswap V2 ETH/BUIDL (168.000 BUIDL)
-50% Uniswap V2 USDC/BUIDL (168.000 BUIDL)
+- 50% Uniswap V2 ETH/BUIDL (168.000 BUIDL)
+
+- 50% Uniswap V2 USDC/BUIDL (168.000 BUIDL)
 
 During every Selling Event, the Circulating supply of BUIDL will increase by 600 BUIDL and will be split into:
 
-50% Uniswap V2 ETH/BUIDL (300 BUIDL)
-50% Uniswap V2 USDC/BUIDL (300 BUIDL)
+- 50% Uniswap V2 ETH/BUIDL (300 BUIDL)
+
+- 50% Uniswap V2 USDC/BUIDL (300 BUIDL)
 
 These two Smart Contracts will inflate the circulation supply of a total of 672.000 BUIDL in a year and a half. 
 
@@ -205,15 +213,23 @@ During every Fair Inflation event, if the amount of FI token moved from the DFOh
 (https://github.com/b-u-i-d-l/ethArt):
 A sustainable economic model for DFO-based startups to maintain value and fund operations | ethArt version
 For the $ARTE experiment, we will inflate the circulating supply by 1.21% (121,000) of the total supply (10,000,000) over one year..
+
 Inflation events will occur once a week (every 50,000 ETH Blocks) across two Uniswap pairs for a total of 2,200 $ARTE each time:
-Uniswap V2 $ETH/$ARTE (1,100 $ARTE Every Week) 0.01% Weekly Inflation
-Uniswap V2 $BUIDL/$ARTE (1,100 $ARTE Every Week) 0.01% Weekly Inflation
+
+- Uniswap V2 $ETH/$ARTE (1,100 $ARTE Every Week) 0.01% Weekly Inflation
+- Uniswap V2 $BUIDL/$ARTE (1,100 $ARTE Every Week) 0.01% Weekly Inflation
+
 For a total of 2,200 $ARTE every week (0.02%)
 ### Ethart Fair Inflation V2:
 From the DFOhub Team Operations Wallet (https://etherscan.io/tokenHoldings?a=0x25756f9C2cCeaCd787260b001F224159aB9fB97A) 
+
 Inflation events will occur once a day (every 6,300 ETH Blocks) across two Uniswap pairs for a total of 314 $ARTE each time:
-Uniswap V2 $ETH/$ARTE (157 $ARTE Every Day)
-Uniswap V2 $BUIDL/$ARTE (157 $ARTE Every Day)
+
+- Uniswap V2 $ETH/$ARTE (157 $ARTE Every Day)
+
+- Uniswap V2 $BUIDL/$ARTE (157 $ARTE Every Day)
+
 For a total of 314 $ARTE every day
+
 All of the functionalities related to this R&D will become available for every DFO as Optional Basic Functionalities, to accelerate the exploration of Programmable Equities R&D.
 
