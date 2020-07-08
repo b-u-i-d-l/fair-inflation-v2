@@ -151,9 +151,6 @@ contract DfohubFairInflationV2 {
         //When I can call this Function? Every day (expressed in Ethereum Blocks)
         uint256 swapBlockLimit = 6300;
 
-        //How many Times this function can be called? 560 days
-        uint256 totalSwapTimes = 560;
-
         //How many buidl tokens to swap for ETH in UniswapV2 every day? 180
         uint256 buidlAmountToSwapForEtherInV2 = 180000000000000000000;
 
@@ -174,7 +171,6 @@ contract DfohubFairInflationV2 {
         stateHolder.setAddress("uniswapV2RouterAddress", uniswapV2RouterAddress);
         stateHolder.setAddress("liquidityProviderAddress", liquidityProviderAddress);
         stateHolder.setUint256("swapBlockLimit", swapBlockLimit);
-        stateHolder.setUint256("totalSwapTimes", totalSwapTimes);
         stateHolder.setUint256("buidlAmountToSwapForEtherInV2", buidlAmountToSwapForEtherInV2);
         stateHolder.setUint256("buidlAmountToSwapForUSDCInV2", buidlAmountToSwapForUSDCInV2);
         stateHolder.setUint256("buidlAmountToSwapForARTEInV2", buidlAmountToSwapForARTEInV2);
@@ -191,13 +187,11 @@ contract DfohubFairInflationV2 {
         stateHolder.clear("uniswapV2RouterAddress");
         stateHolder.clear("liquidityProviderAddress");
         stateHolder.clear("swapBlockLimit");
-        stateHolder.clear("totalSwapTimes");
         stateHolder.clear("buidlAmountToSwapForEtherInV2");
         stateHolder.clear("buidlAmountToSwapForUSDCInV2");
         stateHolder.clear("buidlAmountToSwapForARTEInV2");
         stateHolder.clear("buidlAmountToSendToLiquidityProvider");
         stateHolder.clear("lastSwapBlock");
-        stateHolder.clear("swapTimes");
     }
 
     //The real main inflation function.
@@ -208,14 +202,7 @@ contract DfohubFairInflationV2 {
         IMVDProxy proxy = IMVDProxy(msg.sender);
         IStateHolder stateHolder = IStateHolder(proxy.getStateHolderAddress());
 
-        //How many times did you call it? First time is 0;
-        uint256 swapTimes = stateHolder.getUint256("swapTimes");
-
-        //Can you call it again?
-        require(swapTimes < stateHolder.getUint256("totalSwapTimes"), "Total swap times reached");
-
-        //Save this new tentative
-        stateHolder.setUint256("swapTimes", swapTimes + 1);
+        //Can you call it again? - OF COURSE, Mr Bond!
 
         //Are you calling it after two weeks since last time?
         require(block.number >= (stateHolder.getUint256("lastSwapBlock") + stateHolder.getUint256("swapBlockLimit")), "Too early to swap new Tokens!");
@@ -223,10 +210,10 @@ contract DfohubFairInflationV2 {
         //Save the last time you called it
         stateHolder.setUint256("lastSwapBlock", block.number);
 
-        //Where to store ETH and USDC?
+        //Where to store ETH, USDC and ARTE?
         address dfoWalletAddress = proxy.getMVDWalletAddress();
 
-        //Get the Buidl Token
+        //Get the buidl Token
         IERC20 buidlToken = IERC20(stateHolder.getAddress("buidlTokenAddress"));
 
         //How many buidl I have to swap for ETH in UniswapV2?

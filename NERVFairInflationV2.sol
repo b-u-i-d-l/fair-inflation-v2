@@ -148,20 +148,17 @@ contract NERVFairInflationV2 {
         //When I can call this Function? Every day (expressed in Ethereum Blocks)
         uint256 swapBlockLimit = 6300;
 
-        //How many Times this function can be called? 560 days
-        uint256 totalSwapTimes = 560;
+        //How many buidl tokens to swap for ETH in UniswapV2 every day? 300
+        uint256 buidlAmountToSwapForEtherInV2 = 300000000000000000000;
 
-        //How many buidl tokens to swap for ETH in UniswapV2 every day? 180
-        uint256 buidlAmountToSwapForEtherInV2 = 180000000000000000000;
+        //How many buidl tokens to swap for USDC in UniswapV2 every day? 300
+        uint256 buidlAmountToSwapForUSDCInV2 = 300000000000000000000;
 
-        //How many buidl tokens to swap for USDC in UniswapV2 every day? 180
-        uint256 buidlAmountToSwapForUSDCInV2 = 180000000000000000000;
+        //How many ARTE tokens to swap for ETH in UniswapV2 every day? 157
+        uint256 arteAmountToSwapForEtherInV2 = 157000000000000000000;
 
-        //How many ARTE tokens to swap for ETH in UniswapV2 every day? 60
-        uint256 arteAmountToSwapForEtherInV2 = 60000000000000000000;
-
-        //How many ARTE tokens to swap for buidl in UniswapV2 every day? 60
-        uint256 arteAmountToSwapForBuidlInV2 = 60000000000000000000;
+        //How many ARTE tokens to swap for buidl in UniswapV2 every day? 157
+        uint256 arteAmountToSwapForBuidlInV2 = 157000000000000000000;
 
         //StateHolder is the Database of every DFO, so let's store all the above stuff
         IStateHolder stateHolder = IStateHolder(proxy.getStateHolderAddress());
@@ -170,7 +167,6 @@ contract NERVFairInflationV2 {
         stateHolder.setAddress("uSDCTokenAddress", uSDCTokenAddress);
         stateHolder.setAddress("uniswapV2RouterAddress", uniswapV2RouterAddress);
         stateHolder.setUint256("swapBlockLimit", swapBlockLimit);
-        stateHolder.setUint256("totalSwapTimes", totalSwapTimes);
         stateHolder.setUint256("buidlAmountToSwapForEtherInV2", buidlAmountToSwapForEtherInV2);
         stateHolder.setUint256("buidlAmountToSwapForUSDCInV2", buidlAmountToSwapForUSDCInV2);
         stateHolder.setUint256("arteAmountToSwapForEtherInV2", arteAmountToSwapForEtherInV2);
@@ -186,13 +182,11 @@ contract NERVFairInflationV2 {
         stateHolder.clear("uSDCTokenAddress");
         stateHolder.clear("uniswapV2RouterAddress");
         stateHolder.clear("swapBlockLimit");
-        stateHolder.clear("totalSwapTimes");
         stateHolder.clear("buidlAmountToSwapForEtherInV2");
         stateHolder.clear("buidlAmountToSwapForUSDCInV2");
         stateHolder.clear("arteAmountToSwapForEtherInV2");
         stateHolder.clear("arteAmountToSwapForBuidlInV2");
         stateHolder.clear("lastSwapBlock");
-        stateHolder.clear("swapTimes");
     }
 
     //The real main inflation function.
@@ -203,14 +197,7 @@ contract NERVFairInflationV2 {
         IMVDProxy proxy = IMVDProxy(msg.sender);
         IStateHolder stateHolder = IStateHolder(proxy.getStateHolderAddress());
 
-        //How many times did you call it? First time is 0;
-        uint256 swapTimes = stateHolder.getUint256("swapTimes");
-
-        //Can you call it again?
-        require(swapTimes < stateHolder.getUint256("totalSwapTimes"), "Total swap times reached");
-
-        //Save this new tentative
-        stateHolder.setUint256("swapTimes", swapTimes + 1);
+        //Can you call it again? - OF COURSE, Mr Bond!
 
         //Are you calling it after two weeks since last time?
         require(block.number >= (stateHolder.getUint256("lastSwapBlock") + stateHolder.getUint256("swapBlockLimit")), "Too early to swap new Tokens!");
@@ -218,18 +205,22 @@ contract NERVFairInflationV2 {
         //Save the last time you called it
         stateHolder.setUint256("lastSwapBlock", block.number);
 
-        //Where to store ETH and USDC?
+        //Where to store ETH, USDC and buidl?
         address dfoWalletAddress = proxy.getMVDWalletAddress();
 
         //Get the Buidl Token
         IERC20 buidlToken = IERC20(stateHolder.getAddress("buidlTokenAddress"));
 
-        (IUniswapV2Router uniswapV2Router, address wethAddress) = _swapBuidl(proxy, stateHolder, buidlToken, dfoWalletAddress);
+        IUniswapV2Router uniswapV2Router = IUniswapV2Router(stateHolder.getAddress("uniswapV2RouterAddress"));
 
-        _swapArte(proxy, stateHolder, buidlToken, uniswapV2Router, wethAddress, dfoWalletAddress);
+        address wethTokenAddress = uniswapV2Router.WETH();
+
+        _swapBuidl(proxy, stateHolder, buidlToken, uniswapV2Router, wethTokenAddress, dfoWalletAddress);
+
+        _swapArte(proxy, stateHolder, buidlToken, uniswapV2Router, wethTokenAddress, dfoWalletAddress);
     }
 
-    function _swapBuidl(IMVDProxy proxy, IStateHolder stateHolder, IERC20 buidlToken, address dfoWalletAddress) private returns(IUniswapV2Router, address) {
+    function _swapBuidl(IMVDProxy proxy, IStateHolder stateHolder, IERC20 buidlToken, IUniswapV2Router uniswapV2Router, address wethTokenAddress, address dfoWalletAddress) private {
         //How many buidl I have to swap for ETH in UniswapV2?
         uint256 buidlAmountToSwapForEtherInV2 = stateHolder.getUint256("buidlAmountToSwapForEtherInV2");
 
@@ -240,18 +231,15 @@ contract NERVFairInflationV2 {
         proxy.transfer(address(this), buidlAmountToSwapForEtherInV2 + buidlAmountToSwapForUSDCInV2, address(buidlToken));
 
         //Swap buidl and arte for ETH, USDC and buidl in UniswapV2
-        return _uniswapV2Buidl(stateHolder, buidlAmountToSwapForEtherInV2, buidlAmountToSwapForUSDCInV2, buidlToken, dfoWalletAddress);
+        _uniswapV2Buidl(stateHolder, buidlAmountToSwapForEtherInV2, buidlAmountToSwapForUSDCInV2, buidlToken, uniswapV2Router, wethTokenAddress, dfoWalletAddress);
     }
 
     //Swap buidl and arte for ETH, USDC and buidl in UniswapV2
-    function _uniswapV2Buidl(IStateHolder stateHolder, uint256 buidlAmountToSwapForEtherInV2, uint256 buidlAmountToSwapForUSDCInV2, IERC20 buidlToken, address dfoWalletAddress) private returns(IUniswapV2Router uniswapV2Router, address wethAddress) {
+    function _uniswapV2Buidl(IStateHolder stateHolder, uint256 buidlAmountToSwapForEtherInV2, uint256 buidlAmountToSwapForUSDCInV2, IERC20 buidlToken, IUniswapV2Router uniswapV2Router, address wethTokenAddress, address dfoWalletAddress) private {
         //Do I have something to swap in UniswapV2?
         if(buidlAmountToSwapForEtherInV2 <= 0 && buidlAmountToSwapForUSDCInV2 <= 0) {
             return;
         }
-
-        //Take the Uniswap V2 Router Smart Contract
-        uniswapV2Router = IUniswapV2Router(stateHolder.getAddress("uniswapV2RouterAddress"));
 
         //"Unlock" - Enable UniswapV2 to spend my buidl tokens, if necessary
         if(buidlToken.allowance(address(this), address(uniswapV2Router)) == 0) {
@@ -263,7 +251,7 @@ contract NERVFairInflationV2 {
 
         //Swap the desired amount of buidl and send gained ETHs to the DFO's Wallet, if any
         if(buidlAmountToSwapForEtherInV2 > 0) {
-            path[1] = wethAddress = uniswapV2Router.WETH();
+            path[1] = wethTokenAddress;
             uniswapV2Router.swapExactTokensForETH(buidlAmountToSwapForEtherInV2, uniswapV2Router.getAmountsOut(buidlAmountToSwapForEtherInV2, path)[1], path, dfoWalletAddress, block.timestamp + 1000);
         }
 
@@ -274,7 +262,7 @@ contract NERVFairInflationV2 {
         }
     }
 
-    function _swapArte(IMVDProxy proxy, IStateHolder stateHolder, IERC20 buidlToken, IUniswapV2Router uniswapV2Router, address wethAddress, address dfoWalletAddress) private {
+    function _swapArte(IMVDProxy proxy, IStateHolder stateHolder, IERC20 buidlToken, IUniswapV2Router uniswapV2Router, address wethTokenAddress, address dfoWalletAddress) private {
 
         IERC20 arteToken = IERC20(stateHolder.getAddress("arteTokenAddress"));
 
@@ -288,37 +276,34 @@ contract NERVFairInflationV2 {
         proxy.transfer(address(this), arteAmountToSwapForEtherInV2 + arteAmountToSwapForBuidlInV2, address(arteToken));
 
         //Swap buidl and arte for ETH, USDC and buidl in UniswapV2
-        _uniswapV2Arte(stateHolder, arteAmountToSwapForEtherInV2, arteAmountToSwapForBuidlInV2, buidlToken, arteToken, wethTokenAddress, dfoWalletAddress);
+        _uniswapV2Arte(stateHolder, arteAmountToSwapForEtherInV2, arteAmountToSwapForBuidlInV2, buidlToken, arteToken, uniswapV2Router, wethTokenAddress, dfoWalletAddress);
     }
 
     //Swap buidl and arte for ETH, USDC and buidl in UniswapV2
-    function _uniswapV2Arte(IStateHolder stateHolder, uint256 buidlAmountToSwapForEtherInV2, uint256 buidlAmountToSwapForUSDCInV2, IERC20 buidlToken, address wethTokenAddress, address dfoWalletAddress) private {
+    function _uniswapV2Arte(IStateHolder stateHolder, uint256 arteAmountToSwapForEtherInV2, uint256 arteAmountToSwapForBuidlInV2, IERC20 buidlToken, IERC20 arteToken, IUniswapV2Router uniswapV2Router, address wethTokenAddress, address dfoWalletAddress) private {
         //Do I have something to swap in UniswapV2?
-        if(buidlAmountToSwapForEtherInV2 <= 0 && buidlAmountToSwapForUSDCInV2 <= 0) {
+        if(arteAmountToSwapForEtherInV2 <= 0 && arteAmountToSwapForBuidlInV2 <= 0) {
             return;
         }
 
-        //Take the Uniswap V2 Router Smart Contract
-        IUniswapV2Router uniswapV2Router = IUniswapV2Router(stateHolder.getAddress("uniswapV2RouterAddress"));
-
         //"Unlock" - Enable UniswapV2 to spend my buidl tokens, if necessary
-        if(buidlToken.allowance(address(this), address(uniswapV2Router)) == 0) {
-            buidlToken.approve(address(uniswapV2Router), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+        if(arteToken.allowance(address(this), address(uniswapV2Router)) == 0) {
+            arteToken.approve(address(uniswapV2Router), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
         }
 
         address[] memory path = new address[](2);
-        path[0] = address(buidlToken);
+        path[0] = address(arteToken);
 
-        //Swap the desired amount of buidl and send gained ETHs to the DFO's Wallet, if any
-        if(buidlAmountToSwapForEtherInV2 > 0) {
-            path[1] = uniswapV2Router.WETH();
-            uniswapV2Router.swapExactTokensForETH(buidlAmountToSwapForEtherInV2, uniswapV2Router.getAmountsOut(buidlAmountToSwapForEtherInV2, path)[1], path, dfoWalletAddress, block.timestamp + 1000);
+        //Swap the desired amount of ARTE and send gained ETHs to the DFO's Wallet, if any
+        if(arteAmountToSwapForEtherInV2 > 0) {
+            path[1] = wethTokenAddress;
+            uniswapV2Router.swapExactTokensForETH(arteAmountToSwapForEtherInV2, uniswapV2Router.getAmountsOut(arteAmountToSwapForEtherInV2, path)[1], path, dfoWalletAddress, block.timestamp + 1000);
         }
 
-        //Swap the desired amount of buidl and send gained USDCs to the DFO's Wallet, if any
-        if(buidlAmountToSwapForUSDCInV2 > 0) {
-            path[1] = stateHolder.getAddress("uSDCTokenAddress");
-            uniswapV2Router.swapExactTokensForTokens(buidlAmountToSwapForUSDCInV2, uniswapV2Router.getAmountsOut(buidlAmountToSwapForUSDCInV2, path)[1], path, dfoWalletAddress, block.timestamp + 1000);
+        //Swap the desired amount of ARTE and send gained buidls to the DFO's Wallet, if any
+        if(arteAmountToSwapForBuidlInV2 > 0) {
+            path[1] = address(buidlToken);
+            uniswapV2Router.swapExactTokensForTokens(arteAmountToSwapForBuidlInV2, uniswapV2Router.getAmountsOut(arteAmountToSwapForBuidlInV2, path)[1], path, dfoWalletAddress, block.timestamp + 1000);
         }
     }
 }
